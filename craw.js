@@ -1,8 +1,16 @@
+/*
+* api
+* https://github.com/GoogleChrome/puppeteer/blob/v1.11.0/docs/api.md
+*
+*/
+
 
 //抓取某頁圖片
 
 //引入puppeteer
 const puppeteer = require('puppeteer');
+
+const fs        = require('fs');
 
 /*
 async function getPic() {
@@ -80,6 +88,13 @@ let dev_scrape = async () => {
 
     await page.goto('https://toutiao.io/');
 
+    // await page.setCookie({
+    //     'value': '12345',
+    //     'domain': 'www.google.com',
+    //     'expires': Date.now() / 1000 + 10,
+    //     'name': 'xxxxx'
+    //   });
+
     //設置動作，click、setcookie、input anything....
     // await page.click('.welcome_index > #main > #daily > .jscroll-inner > .daily > div > div');
     // await page.waitFor(1000);
@@ -92,8 +107,8 @@ let dev_scrape = async () => {
                 //節點以用google chrome console 做測試
                 let title = element.childNodes[1].innerText; // get title
                 let link = element.childNodes[1].children[0].href; // get href
-                
-                data.push({title, link}); // push to object
+
+                data.push(title, link); // push to object or array
             }
             return data; 
 
@@ -105,5 +120,8 @@ let dev_scrape = async () => {
 
 dev_scrape().then((value) => {
     console.log(value); 
+    // console.log(JSON.stringify(value)); 
     // Success! , 回傳或存入數據
+    // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
+    
 })

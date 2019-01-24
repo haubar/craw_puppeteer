@@ -7,9 +7,9 @@
 
 //抓取某頁圖片
 
+require('dotenv').config()
 //引入puppeteer
 const puppeteer = require('puppeteer');
-
 const fs        = require('fs');
 
 /*
@@ -19,7 +19,7 @@ async function getPic() {
   //開啟新瀏覽頁面
   const page = await browser.newPage();
   //指定頁面網址
-  await page.goto('https://google.com');
+  await page.goto(process.env.test_url);
   //截圖
   await page.screenshot({path: 'google.png'});
   //關閉環境
@@ -38,7 +38,7 @@ let scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
 
-    await page.goto('http://books.toscrape.com/');
+    await page.goto(process.env.demo_url);
     // await page.click('#default > div > div > div > div > section > div:nth-child(2) > ol > li:nth-child(1) > article > div.image_container > a > img');
     // await page.waitFor(1000);
 
@@ -86,7 +86,7 @@ let dev_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
 
-    await page.goto('https://toutiao.io/');
+    await page.goto(process.env.dev_url);
 
     // await page.setCookie({
     //     'value': '12345',
@@ -125,3 +125,53 @@ dev_scrape().then((value) => {
     // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
     
 })
+
+
+
+//------------------------------------------------------------------------//
+/*
+let rr_scrape = async () => {
+    const browser = await puppeteer.launch({headless: false});
+    const page = await browser.newPage();
+
+    await page.goto('https://toutiao.io/');
+
+    // await page.setCookie({
+    //     'value': '12345',
+    //     'domain': 'www.google.com',
+    //     'expires': Date.now() / 1000 + 10,
+    //     'name': 'xxxxx'
+    //   });
+
+    //設置動作，click、setcookie、input anything....
+    // await page.click('.welcome_index > #main > #daily > .jscroll-inner > .daily > div > div');
+    // await page.waitFor(1000);
+
+    const result = await page.evaluate(() => {
+        let data = []; 
+        let elements = document.querySelectorAll('.content');
+
+            for (var element of elements){
+                //節點以用google chrome console 做測試
+                let title = element.childNodes[1].innerText; // get title
+                let link = element.childNodes[1].children[0].href; // get href
+
+                data.push(title, link); // push to object or array
+            }
+            return data; 
+
+    });
+
+    browser.close();
+    return result;
+};
+
+rr_scrape().then((value) => {
+    console.log(value); 
+    // console.log(JSON.stringify(value)); 
+    // Success! , 回傳或存入數據
+    // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
+    
+})
+
+*/

@@ -81,7 +81,7 @@ scrape().then((value) => {
 //-----------------------------------------------------------------------------//
 
 //開發者頭條
-
+/*
 let dev_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
@@ -125,23 +125,27 @@ dev_scrape().then((value) => {
     // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
     
 })
-
+*/
 
 
 //------------------------------------------------------------------------//
-/*
+
+//不好說
+
 let rr_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
 
-    await page.goto('https://toutiao.io/');
+   
 
-    // await page.setCookie({
-    //     'value': '12345',
-    //     'domain': 'www.google.com',
-    //     'expires': Date.now() / 1000 + 10,
-    //     'name': 'xxxxx'
-    //   });
+    await page.setCookie({
+        'value': 'over18',
+        'domain': 'twdvd.com',
+        'expires': Date.now() / 1000 + 10,
+        'name': 'viewadult'
+      });
+
+      await page.goto(process.env.r18_url);
 
     //設置動作，click、setcookie、input anything....
     // await page.click('.welcome_index > #main > #daily > .jscroll-inner > .daily > div > div');
@@ -149,12 +153,12 @@ let rr_scrape = async () => {
 
     const result = await page.evaluate(() => {
         let data = []; 
-        let elements = document.querySelectorAll('.content');
+        let elements = document.querySelectorAll('.blog_subject');
 
             for (var element of elements){
                 //節點以用google chrome console 做測試
-                let title = element.childNodes[1].innerText; // get title
-                let link = element.childNodes[1].children[0].href; // get href
+                let title = element.childNodes[0].innerText; // get title
+                let link = element.childNodes[0].href; // get href
 
                 data.push(title, link); // push to object or array
             }
@@ -173,5 +177,3 @@ rr_scrape().then((value) => {
     // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
     
 })
-
-*/

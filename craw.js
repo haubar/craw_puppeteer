@@ -81,7 +81,7 @@ scrape().then((value) => {
 //-----------------------------------------------------------------------------//
 
 //開發者頭條
-/*
+
 let dev_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
@@ -122,16 +122,16 @@ dev_scrape().then((value) => {
     console.log(value); 
     // console.log(JSON.stringify(value)); 
     // Success! , 回傳或存入數據
-    // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
+    fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
     
 })
-*/
+
 
 
 //------------------------------------------------------------------------//
 
 //不好說
-
+/*
 let rr_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
@@ -177,3 +177,4 @@ rr_scrape().then((value) => {
     // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
     
 })
+*/

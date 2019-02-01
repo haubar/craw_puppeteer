@@ -88,17 +88,7 @@ let dev_scrape = async () => {
 
     await page.goto(process.env.dev_url);
 
-    // await page.setCookie({
-    //     'value': '12345',
-    //     'domain': 'www.google.com',
-    //     'expires': Date.now() / 1000 + 10,
-    //     'name': 'xxxxx'
-    //   });
-
-    //設置動作，click、setcookie、input anything....
-    // await page.click('.welcome_index > #main > #daily > .jscroll-inner > .daily > div > div');
-    // await page.waitFor(1000);
-
+    //抓取、寫入單頁資料
     const result = await page.evaluate(() => {
         let data = []; 
         let elements = document.querySelectorAll('.content');
@@ -110,11 +100,26 @@ let dev_scrape = async () => {
 
                 data.push(title, link); // push to object or array
             }
+
             return data; 
+            // await page.waitFor(1000);
+            // await page.click('.pagination > .page > a');
+            // const url = await page.evaluate(() => location.href);
 
     });
 
-    browser.close();
+    //待修改
+    // page.$$(selector)
+    // let current_page = parseInt(document.querySelectorAll('.pagination > .page.active')[0].innerText);
+    // let next_page = current_page + 1;
+    // page.waitForNavigation();
+    // let next_url = document.querySelectorAll('.pagination > .page')[next_page].children[0].href;
+
+
+    // expect(url)
+
+
+    // browser.close();
     return result;
 };
 

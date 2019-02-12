@@ -86,41 +86,69 @@ let dev_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
 
+
     await page.goto(process.env.dev_url);
 
+    const allData = [];
     //抓取、寫入單頁資料
     const result = await page.evaluate(() => {
         let data = []; 
         let elements = document.querySelectorAll('.content');
-
             for (var element of elements){
                 //節點以用google chrome console 做測試
                 let title = element.childNodes[1].innerText; // get title
                 let link = element.childNodes[1].children[0].href; // get href
-
-                data.push(title, link); // push to object or array
+                data.push(title, link);
             }
-
             return data; 
-            // await page.waitFor(1000);
-            // await page.click('.pagination > .page > a');
-            // const url = await page.evaluate(() => location.href);
-
     });
 
-    //待修改
-    // page.$$(selector)
-    // let current_page = parseInt(document.querySelectorAll('.pagination > .page.active')[0].innerText);
-    // let next_page = current_page + 1;
-    // page.waitForNavigation();
-    // let next_url = document.querySelectorAll('.pagination > .page')[next_page].children[0].href;
+    allData.push(result);
+
+    // await crawContent(page, process.env.dev_url)
 
 
-    // expect(url)
+
+    //抓取該頁所有分頁位址
+    var list = await page.$$('.pagination > .page > a');
+    //加入預設第一頁的網址進入array
+    var pageUrls = [];
+    //排除第一頁
+    for (let page = 1; page < list.length; page++) {
+        pageUrls.push(await (await list[page].getProperty('href')).jsonValue())
+    }
+
+    for (let count = 0; count < pageUrls.length; count++) {
+        let url = pageUrls[count];
+        let result = await crawContent(page, url)
+        allData.push(result)
+    }
 
 
-    // browser.close();
-    return result;
+    async function crawContent (page, url) {
+        await page.goto(url)
+        const result = await page.evaluate(() => {
+            let data = []; 
+            let elements = document.querySelectorAll('.content');
+                for (var element of elements){
+                    //節點以用google chrome console 做測試
+                    let title = element.childNodes[1].innerText; // get title
+                    let link = element.childNodes[1].children[0].href; // get href
+                    data.push(title, link);
+                }
+            return data; 
+        })
+        // await page.waitForNavigation();
+        return result
+    }
+
+//------------end close & return data---------------------//
+
+    browser.close();
+    return allData;
+    // return list;
+    // return pageUrls;
+    
 };
 
 dev_scrape().then((value) => {

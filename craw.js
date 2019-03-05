@@ -20,7 +20,7 @@ airtable.configure({
 //寫入airtable DB
 async function writeDB (title, url) {
     const base = airtable.base(process.env.BASE_NAME)
-    const table = base(process.env.TABLE_NAME)
+    const table = base(process.env.DEV_TABLE_NAME)
     await table.create({
         "name": title,
         "url": url,
@@ -74,17 +74,17 @@ let scrape = async () => {
     // });
 
     const result = await page.evaluate(() => {
-        let data = []; // 
-        let elements = document.querySelectorAll('.product_pod'); 
+        let data = []; //
+        let elements = document.querySelectorAll('.product_pod');
 
         for (var element of elements){ // 循环
-            let title = element.childNodes[5].innerText; 
-            let price = element.childNodes[7].children[0].innerText; 
+            let title = element.childNodes[5].innerText;
+            let price = element.childNodes[7].children[0].innerText;
 
             data.push({title, price}); // 存入数组
         }
 
-        return data; 
+        return data;
     });
 
     browser.close();
@@ -112,7 +112,7 @@ let dev_scrape = async () => {
     const allData = [];
     //抓取、寫入單頁資料
     const result = await page.evaluate(() => {
-        let data = []; 
+        let data = [];
         let elements = document.querySelectorAll('.content');
             for (var element of elements){
                 //節點以用google chrome console 做測試
@@ -122,7 +122,7 @@ let dev_scrape = async () => {
                 // data.push(title, link);
                 data.push({'name': title, 'url': link});
             }
-            return data; 
+            return data;
     });
 
     allData.push(result);
@@ -170,11 +170,11 @@ let dev_scrape = async () => {
     return allData;
     // return list;
     // return pageUrls;
-    
+
 };
 
 dev_scrape().then((data) => {
-    // console.log(data) 
+    // console.log(data)
     for ( const key in data ) {
         if (data.hasOwnProperty(key)) {
             let element = data[key]
@@ -184,12 +184,12 @@ dev_scrape().then((data) => {
                 let url   = element[dom].url
                 writeDB(title, url)
             }
-        }				
+        }
     }
-    // console.log(JSON.stringify(value)); 
+    // console.log(JSON.stringify(value));
     // Success! , 回傳或存入數據
     fs.writeFile('data.txt', (JSON.stringify(data)).replace(/,/gi, "\n") + "\n", function(err) {})
-    
+
 })
 
 
@@ -202,7 +202,7 @@ let rr_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
 
-   
+
 
     await page.setCookie({
         'value': 'over18',
@@ -218,7 +218,7 @@ let rr_scrape = async () => {
     // await page.waitFor(1000);
 
     const result = await page.evaluate(() => {
-        let data = []; 
+        let data = [];
         let elements = document.querySelectorAll('.blog_subject');
 
             for (var element of elements){
@@ -228,7 +228,7 @@ let rr_scrape = async () => {
 
                 data.push(title, link); // push to object or array
             }
-            return data; 
+            return data;
 
     });
 
@@ -237,10 +237,10 @@ let rr_scrape = async () => {
 };
 
 rr_scrape().then((value) => {
-    console.log(value); 
-    // console.log(JSON.stringify(value)); 
+    console.log(value);
+    // console.log(JSON.stringify(value));
     // Success! , 回傳或存入數據
     // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
-    
+
 })
 */

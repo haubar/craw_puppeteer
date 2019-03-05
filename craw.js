@@ -10,7 +10,27 @@
 require('dotenv').config()
 //引入puppeteer
 const puppeteer = require('puppeteer');
+const airtable  = require('airtable');
 const fs        = require('fs');
+
+airtable.configure({
+    apiKey: process.env.API_KEY
+})
+
+//寫入airtable DB
+async function writeDB (title, url) {
+    const base = airtable.base(process.env.BASE_NAME)
+    const table = base(process.env.TABLE_NAME)
+    await table.create({
+        "name": title,
+        "url": url,
+    }, (err, record) => {
+        if (err) {
+            console.error(err)
+        }
+        // console.info('ID', record.getId())
+    })
+}
 
 /*
 async function getPic() {
@@ -98,7 +118,9 @@ let dev_scrape = async () => {
                 //節點以用google chrome console 做測試
                 let title = element.childNodes[1].innerText; // get title
                 let link = element.childNodes[1].children[0].href; // get href
-                data.push(title, link);
+                // writeDB(title, url, airtable)
+                // data.push(title, link);
+                data.push({'name': title, 'url': link});
             }
             return data; 
     });
@@ -106,7 +128,6 @@ let dev_scrape = async () => {
     allData.push(result);
 
     // await crawContent(page, process.env.dev_url)
-
 
 
     //抓取該頁所有分頁位址
@@ -128,15 +149,16 @@ let dev_scrape = async () => {
     async function crawContent (page, url) {
         await page.goto(url)
         const result = await page.evaluate(() => {
-            let data = []; 
+            let data = [];
             let elements = document.querySelectorAll('.content');
                 for (var element of elements){
                     //節點以用google chrome console 做測試
                     let title = element.childNodes[1].innerText; // get title
                     let link = element.childNodes[1].children[0].href; // get href
-                    data.push(title, link);
+                    // writeDB(title, url, airtable)
+                    data.push({'name': title, 'url': link});
                 }
-            return data; 
+            return data;
         })
         // await page.waitForNavigation();
         return result
@@ -151,11 +173,22 @@ let dev_scrape = async () => {
     
 };
 
-dev_scrape().then((value) => {
-    console.log(value); 
+dev_scrape().then((data) => {
+    // console.log(data) 
+    for ( const key in data ) {
+        if (data.hasOwnProperty(key)) {
+            let element = data[key]
+            for ( let dom in element ) {
+                // console.log(element[dom])
+                let title = element[dom].name
+                let url   = element[dom].url
+                writeDB(title, url)
+            }
+        }				
+    }
     // console.log(JSON.stringify(value)); 
     // Success! , 回傳或存入數據
-    fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
+    fs.writeFile('data.txt', (JSON.stringify(data)).replace(/,/gi, "\n") + "\n", function(err) {})
     
 })
 

@@ -18,9 +18,9 @@ airtable.configure({
 })
 
 //寫入airtable DB
-async function writeDB (title, url, table) {
+async function writeDB (title, url, tablename) {
     const base = airtable.base(process.env.BASE_NAME)
-    const table = base(table)
+    const table = base(tablename)
     await table.create({
         "name": title,
         "url": url,

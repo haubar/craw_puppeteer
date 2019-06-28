@@ -1,4 +1,4 @@
 const craw = require('./craw')
 
-craw.toutiao(toutiao)
-// craw.twdvd(eighteen)
+craw.toutiao('toutiao')
+// craw.twdvd('eighteen')

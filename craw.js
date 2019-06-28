@@ -180,7 +180,7 @@ let rr_scrape = async () => {
     await page.setCookie({
         'value': 'over18',
         'domain': 'twdvd.com',
-        'expires': Date.now() / 1000 + 10,
+        'expires': Date.now() / 1000 + 100000,
         'name': 'viewadult'
     });
 
@@ -228,6 +228,7 @@ let rr_scrape = async () => {
                 //節點以用google chrome console 做測試
                 let title = element.childNodes[0].innerText; // get title
                 let link = element.childNodes[0].href; // get href
+                console.log(title)
                 data.push({'name': title, 'url': link});
             }
             return data

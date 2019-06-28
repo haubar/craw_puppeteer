@@ -186,11 +186,6 @@ let rr_scrape = async () => {
 
     await page.goto(process.env.r18_url);
 
-    //設置動作，click、setcookie、input anything....
-    // await page.click('.welcome_index > #main > #daily > .jscroll-inner > .daily > div > div');
-    // await page.waitFor(1000);
-
-
     const allData = [];
     //抓取、寫入單頁資料
     const result = await page.evaluate(() => {
@@ -203,14 +198,14 @@ let rr_scrape = async () => {
                 // writeDB(title, url, airtable)
                 // data.push(title, link);
                 data.push({'name': title, 'url': link});
-            }
-            return data;
+        }
+        return data;
     })
 
     allData.push(result);
 
     //抓取該頁所有分頁位址
-    var list = await page.$$('center > span > a');
+    var list = await page.$$('center > span > a')
     //加入預設第一頁的網址進入array
     var pageUrls = [];
     //排除第一頁
@@ -229,19 +224,19 @@ let rr_scrape = async () => {
         const result = await page.evaluate(() => {
             let data = [];
             let elements = document.querySelectorAll('.blog_subject');
-                for (var element of elements){
-                    //節點以用google chrome console 做測試
-                    let title = element.childNodes[0].innerText; // get title
-                    let link = element.childNodes[0].href; // get href
-                    data.push({'name': title, 'url': link});
-                }
-                return data;
+            for (var element of elements){
+                //節點以用google chrome console 做測試
+                let title = element.childNodes[0].innerText; // get title
+                let link = element.childNodes[0].href; // get href
+                data.push({'name': title, 'url': link});
+            }
+            return data
         })
         return result
     }
 
     browser.close();
-    return result;
+    return allData;
 }
 
 
@@ -266,8 +261,8 @@ exports.toutiao = async function (table) {
   }
 
 exports.twdvd = async function (table) {
-   await rr_scrape().then((value) => {
-        console.log(value);
+   await rr_scrape().then((data) => {
+        // console.log(data);
         for ( const key in data ) {
             if (data.hasOwnProperty(key)) {
                 let element = data[key]
@@ -282,6 +277,6 @@ exports.twdvd = async function (table) {
         // Success! , 回傳或存入數據
         // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
     
-        fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
+        fs.writeFile('data.txt', (JSON.stringify(data)).replace(/,/gi, "\n") + "\n", function(err) {})
     })
 }

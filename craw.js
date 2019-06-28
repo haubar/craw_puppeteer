@@ -18,9 +18,9 @@ airtable.configure({
 })
 
 //寫入airtable DB
-async function writeDB (title, url) {
+async function writeDB (title, url, table) {
     const base = airtable.base(process.env.BASE_NAME)
-    const table = base(process.env.DEV_TABLE_NAME)
+    const table = base(table)
     await table.create({
         "name": title,
         "url": url,
@@ -28,7 +28,6 @@ async function writeDB (title, url) {
         if (err) {
             console.error(err)
         }
-        // console.info('ID', record.getId())
     })
 }
 
@@ -106,7 +105,6 @@ let dev_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
 
-
     await page.goto(process.env.dev_url);
 
     const allData = [];
@@ -126,9 +124,6 @@ let dev_scrape = async () => {
     });
 
     allData.push(result);
-
-    // await crawContent(page, process.env.dev_url)
-
 
     //抓取該頁所有分頁位址
     var list = await page.$$('.pagination > .page > a');
@@ -168,79 +163,125 @@ let dev_scrape = async () => {
 
     browser.close();
     return allData;
-    // return list;
-    // return pageUrls;
-
 };
 
-dev_scrape().then((data) => {
-    // console.log(data)
-    for ( const key in data ) {
-        if (data.hasOwnProperty(key)) {
-            let element = data[key]
-            for ( let dom in element ) {
-                // console.log(element[dom])
-                let title = element[dom].name
-                let url   = element[dom].url
-                writeDB(title, url)
-            }
-        }
-    }
-    // console.log(JSON.stringify(value));
-    // Success! , 回傳或存入數據
-    fs.writeFile('data.txt', (JSON.stringify(data)).replace(/,/gi, "\n") + "\n", function(err) {})
-
-})
 
 
 
 //------------------------------------------------------------------------//
 
 //不好說
-/*
+
 let rr_scrape = async () => {
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
 
-
-
+    //setting key 
     await page.setCookie({
         'value': 'over18',
         'domain': 'twdvd.com',
         'expires': Date.now() / 1000 + 10,
         'name': 'viewadult'
-      });
+    });
 
-      await page.goto(process.env.r18_url);
+    await page.goto(process.env.r18_url);
 
     //設置動作，click、setcookie、input anything....
     // await page.click('.welcome_index > #main > #daily > .jscroll-inner > .daily > div > div');
     // await page.waitFor(1000);
 
+
+    const allData = [];
+    //抓取、寫入單頁資料
     const result = await page.evaluate(() => {
         let data = [];
-        let elements = document.querySelectorAll('.blog_subject');
-
-            for (var element of elements){
+        let elements = document.querySelectorAll('.blog_subject')
+        for (var element of elements){
                 //節點以用google chrome console 做測試
                 let title = element.childNodes[0].innerText; // get title
                 let link = element.childNodes[0].href; // get href
-
-                data.push(title, link); // push to object or array
+                // writeDB(title, url, airtable)
+                // data.push(title, link);
+                data.push({'name': title, 'url': link});
             }
             return data;
+    })
 
-    });
+    allData.push(result);
+
+    //抓取該頁所有分頁位址
+    var list = await page.$$('center > span > a');
+    //加入預設第一頁的網址進入array
+    var pageUrls = [];
+    //排除第一頁
+    for (let page = 1; page < list.length; page++) {
+        pageUrls.push(await (await list[page].getProperty('href')).jsonValue())
+    }
+
+    for (let count = 0; count < pageUrls.length; count++) {
+        let url = pageUrls[count];
+        let result = await crawContent(page, url)
+        allData.push(result)
+    }
+
+    async function crawContent (page, url) {
+        await page.goto(url)
+        const result = await page.evaluate(() => {
+            let data = [];
+            let elements = document.querySelectorAll('.blog_subject');
+                for (var element of elements){
+                    //節點以用google chrome console 做測試
+                    let title = element.childNodes[0].innerText; // get title
+                    let link = element.childNodes[0].href; // get href
+                    data.push({'name': title, 'url': link});
+                }
+                return data;
+        })
+        return result
+    }
 
     browser.close();
     return result;
-};
+}
 
-rr_scrape().then((value) => {
-    console.log(value);
-    // console.log(JSON.stringify(value));
-    // Success! , 回傳或存入數據
-    // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
 
-})
-*/
+exports.toutiao = async function (table) {
+   await dev_scrape().then((data) => {
+        for ( const key in data ) {
+            if (data.hasOwnProperty(key)) {
+                let element = data[key]
+                for ( let dom in element ) {
+                    let title = element[dom].name
+                    let url   = element[dom].url
+                    writeDB(title, url, table)
+                }
+            }
+        }
+        // console.log(JSON.stringify(value));
+        // Success! , 回傳或存入數據
+        fs.writeFile('data.txt', (JSON.stringify(data)).replace(/,/gi, "\n") + "\n", function(err) {})
+    
+    })
+    
+  }
+
+exports.twdvd = async function (table) {
+   await rr_scrape().then((value) => {
+        console.log(value);
+        for ( const key in data ) {
+            if (data.hasOwnProperty(key)) {
+                let element = data[key]
+                for ( let dom in element ) {
+                    let title = element[dom].name
+                    let url   = element[dom].url
+                    writeDB(title, url, table)
+                }
+            }
+        }
+        // console.log(JSON.stringify(value));
+        // Success! , 回傳或存入數據
+        // fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
+    
+        fs.writeFile('data.txt', (JSON.stringify(value)).replace(/,/gi, "\n") + "\n", function(err) {})
+    })
+}
